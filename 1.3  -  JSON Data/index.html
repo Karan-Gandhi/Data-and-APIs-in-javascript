@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    
+        <title>Fetch JSON from API and map latitude longitude</title>
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+
+        <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+
+        <style>
+            #issMap {
+                height: 580px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Current location of the ISS (International Space Station)</h1>
+        
+        <p id="lat">°</p>
+        <p id="lon">°</p>
+        
+        <div id="issMap"></div>
+
+        <script>
+            var myIcon = L.icon({
+                iconUrl: 'iss_img.jpg',
+                iconSize: [50, 35],
+                iconAnchor: [50, 32],
+            });
+
+            const latitude = getData.lat;
+            const longitude = getData.lon;
+
+            var mymap = L.map('issMap').setView([0, 0], 1);
+            var interval = window.setInterval(getData, 1000);
+            var marker = L.marker([0, 0], {icon: myIcon}).addTo(mymap);
+            
+            const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
+            
+            const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+            const title_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            const tiles = L.tileLayer(title_URL, { attribution });
+            
+            tiles.addTo(mymap);
+
+            let firstTime = true;
+
+            async function getData() 
+            {
+                const response = await fetch(api_url);
+                const data = await response.json();
+
+                const lat = data.latitude;
+                const lon = data.longitude;
+                
+                // L.marker([lat, lon]).addTo(mymap);
+                marker.setLatLng([lat, lon]);
+
+                if(firstTime)
+                {
+                    mymap.setView([lat, lon], 4);
+                    firstTime = false;
+                }
+
+                console.log(lat, lon);
+
+                document.getElementById("lat").textContent = "Latitude : " + lat + "°";
+                document.getElementById("lon").textContent = "Longitude : " + lon + "°";
+            }
+
+            getData();
+        </script>
+    </body>
+</html>

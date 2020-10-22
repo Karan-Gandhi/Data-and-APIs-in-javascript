@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        
+        <title>Data selfie app</title>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/addons/p5.dom.min.js"></script>
+    </head>
+    <body>
+        <h1>Data selfie app</h1>
+        
+        <a href="index.html">Home</a> | <a href="#">History</a>
+        <button id="clear">clear</button>
+        <script>
+            const clearbtn = document.getElementById('clear');
+            getData();
+
+            async function getData() 
+            {
+                const response = await fetch('/api');
+                const data = await response.json();
+
+                console.log(data);
+
+                for (item of data) {
+                    const root = document.createElement('p');
+                    const mood = document.createElement('div');
+                    const geo = document.createElement('div');
+                    const date = document.createElement('div');
+                    const image = document.createElement('img');
+
+                    const dateString = new Date(item.timestamp).toLocaleString();
+
+                    mood.textContent = `mood: ${item.mood}`;
+                    geo.textContent = `Latatude: ${item.latitude}°, Longitude: ${item.longitude}°`;
+                    date.textContent = dateString;
+                    image.src = item.image64;
+
+                    root.append(mood, geo, date, image);
+                    document.body.append(root);
+                }
+            }
+
+        </script>
+    </body>
+</html>

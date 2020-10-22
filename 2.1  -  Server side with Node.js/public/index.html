@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        
+        <title>Data selfie app</title>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/addons/p5.dom.min.js"></script>
+    </head>
+    <body>
+        <h1>Data selfie app</h1>
+
+        <a href="#">Home</a> | <a href="history.html">History</a>
+        <p>
+            Latitude: <span id="lat"></span>° <br />
+            Longitude: <span id="lon"></span>° <br />
+        </p>
+
+        <input type="text" id="mood">
+
+        <button id="submit">submit</button>
+        <script>           
+
+            function setup() {    
+                const video = createCapture(VIDEO);
+                video.size(320, 240);
+
+                var lat = document.getElementById("lat");
+                var lon = document.getElementById("lon");
+                let latitude, longitude;
+                
+                const button = document.getElementById('submit');
+
+                button.addEventListener('click', async event => {
+                    const mood = document.getElementById('mood').value;
+
+                    video.loadPixels();
+                    const image64 = video.canvas.toDataURL();
+                    
+                    const data = { latitude, longitude, mood, image64 };
+                    const options = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    };
+                
+                    const response = await fetch('/api', options);
+                    const json = await response.json();
+                    
+                    console.log(json);
+                });
+
+                if ("geolocation" in navigator) 
+                {
+                    console.log("Geolocation Avalible");
+                    
+                    navigator.geolocation.getCurrentPosition(async position => {
+
+                        console.log("Latitude: " + position.coords.latitude);
+                        console.log("Longitude: " + position.coords.longitude);
+
+                        lat.textContent = position.coords.latitude;
+                        lon.textContent = position.coords.longitude;
+
+                        latitude = position.coords.latitude;
+                        longitude = position.coords.longitude;
+                    });
+                } 
+                else 
+                {
+                    console.log("Gelocation not Available");
+                }
+
+                noCanvas();
+            }
+
+        </script>
+    </body>
+</html>
